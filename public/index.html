@@ -147,7 +147,8 @@
       <div class="card-title">What you get</div>
       <div class="includes-list" style="margin-top:0.75rem;">
         <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Competitive positioning map</div>
-        <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Three unclaimed white space opportunities</div>
+        <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Two audience personas with pain points and buying triggers</div>
+        <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Three unclaimed white space opportunities validated against your audience</div>
         <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Recommended positioning statement</div>
         <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Value proposition draft</div>
         <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Branded PDF report to keep and share</div>
@@ -183,6 +184,11 @@
           <div class="field"><label>What you do — in plain English</label><textarea id="whatYouDo" rows="2" placeholder="e.g. We help small businesses run payroll without the spreadsheet nightmare"></textarea></div>
           <div class="field"><label>Primary target audience</label><input type="text" id="audience" placeholder="e.g. Founders and ops managers in businesses with 5–50 staff" /></div>
           <div class="field">
+            <label>Tell us more about your audience</label>
+            <textarea id="audienceDetail" rows="3" placeholder="e.g. Time-poor, tried marketing before without results, skeptical of agencies, looking for commercial understanding not just brand thinking. Usually 40–55, running a services business."></textarea>
+            <span class="field-hint">The more you share about their frustrations and mindset, the sharper the personas and white space analysis.</span>
+          </div>
+          <div class="field">
             <label>Name 2–4 competitors</label>
             <input type="text" id="competitors" placeholder="e.g. Employment Hero, Deputy, Rippling, KeyPay" />
             <span class="field-hint">The more specific, the sharper the analysis.</span>
@@ -207,13 +213,18 @@
         <p id="currentPositioning" style="font-size:13px;line-height:1.65;color:var(--text-muted);"></p>
       </div>
       <div class="result-card">
+        <span class="result-label">Audience personas</span>
+        <p class="result-sub">Who you are really talking to — their frustrations, triggers, and what wins them over</p>
+        <div id="personaList"></div>
+      </div>
+      <div class="result-card">
         <span class="result-label">Competitive positioning map</span>
         <p class="result-sub">How named competitors are currently staking their claim</p>
         <div id="compTable"></div>
       </div>
       <div class="result-card">
         <span class="result-label">White space opportunities</span>
-        <p class="result-sub">Positioning territory that is underserved or unclaimed</p>
+        <p class="result-sub">Positioning territory that is underserved or unclaimed — validated against your audience</p>
         <div class="ws-list" id="wsList"></div>
       </div>
       <div class="result-card">
@@ -338,7 +349,8 @@
   async function runAnalysis() {
     const bizName=document.getElementById('bizName').value.trim(), industry=document.getElementById('industry').value.trim(),
       website=document.getElementById('website').value.trim(), whatYouDo=document.getElementById('whatYouDo').value.trim(),
-      audience=document.getElementById('audience').value.trim(), competitors=document.getElementById('competitors').value.trim(),
+      audience=document.getElementById('audience').value.trim(), audienceDetail=document.getElementById('audienceDetail').value.trim(),
+      competitors=document.getElementById('competitors').value.trim(),
       differentiation=document.getElementById('differentiation').value.trim(), err=document.getElementById('formError');
     if (!bizName||!industry||!whatYouDo||!audience||!competitors) { err.style.display='block'; err.textContent='Please fill in all required fields.'; return; }
     err.style.display='none'; currentBizName=bizName; currentWebsite=website;
@@ -348,7 +360,7 @@
     if (website) { try { const r=await fetch('/api/website-summary',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:website,bizName})}); websiteSummary=(await r.json()).summary||null; } catch{} }
 
     try {
-      const r=await fetch('/api/analyse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bizName,industry,website,whatYouDo,audience,competitors,differentiation,websiteSummary})});
+      const r=await fetch('/api/analyse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bizName,industry,website,whatYouDo,audience,audienceDetail,competitors,differentiation,websiteSummary})});
       if (!r.ok) { const e=await r.json(); throw new Error(e.error||`Error ${r.status}`); }
       const data=await r.json(); currentResult=data; hideLoading(); renderResults(data); setStep(4);
       if (sessionId) { fetch('/api/save-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,reportData:data,bizName,industry,website})}).catch(()=>{}); }
@@ -361,10 +373,34 @@
 
   function renderResults(data) {
     if (data.currentPositioning && data.currentPositioning!=='null') { document.getElementById('currentPositioning').textContent=data.currentPositioning; document.getElementById('currentPosCard').style.display='block'; }
+    // Render personas
+    const pl=document.getElementById('personaList'); pl.innerHTML='';
+    if (data.personas && data.personas.length) {
+      data.personas.forEach((p,pi)=>{
+        const pc=document.createElement('div');
+        pc.style.cssText='border:1px solid var(--border);border-radius:10px;padding:1rem 1.25rem;margin-bottom:10px';
+        const frusts = (p.frustrations||[]).map(f=>`<li style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:3px">${f}</li>`).join('');
+        pc.innerHTML=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px"><div style="width:36px;height:36px;border-radius:50%;background:var(--teal-light);color:var(--teal-dark);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;flex-shrink:0">${(p.name||'?')[0]}</div><div><div style="font-size:14px;font-weight:500;color:var(--text)">${p.name||''}, ${p.age||''}</div><div style="font-size:12px;color:var(--text-muted)">${p.role||''} &middot; ${p.companySize||''}</div></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div><div style="font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-hint);margin-bottom:5px">Frustrations</div><ul style="list-style:none;padding:0">${frusts}</ul></div><div><div style="font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-hint);margin-bottom:5px">What they want</div><p style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:8px">${p.whatTheyWant||''}</p><div style="font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-hint);margin-bottom:5px">Buying trigger</div><p style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:8px">${p.buyingTrigger||''}</p><div style="font-size:10px;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;color:var(--text-hint);margin-bottom:5px">What wins them</div><p style="font-size:12px;color:var(--teal-dark);line-height:1.5;background:var(--teal-light);padding:6px 8px;border-radius:5px">${p.whatWouldWinThem||''}</p></div></div>`;
+        pl.appendChild(pc);
+      });
+    }
+
+    // Render competitors
     const ct=document.getElementById('compTable'); ct.innerHTML='';
     data.competitors.forEach(c=>{ const r=document.createElement('div'); r.className='comp-row'; r.innerHTML=`<div class="comp-name">${c.name}</div><div class="comp-pos">${c.positioning}</div>`; ct.appendChild(r); });
+
+    // Render white space (new format with opportunity/whyItMatters/personaFit)
     const wl=document.getElementById('wsList'); wl.innerHTML='';
-    data.whiteSpace.forEach(ws=>{ const i=document.createElement('div'); i.className='ws-item'; i.innerHTML=`<div class="ws-dot"></div><div class="ws-text">${ws}</div>`; wl.appendChild(i); });
+    data.whiteSpace.forEach((ws,i)=>{
+      const item=document.createElement('div');
+      item.style.cssText='margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid var(--border)';
+      if(i===data.whiteSpace.length-1) item.style.borderBottom='none';
+      const opp = typeof ws === 'string' ? ws : (ws.opportunity||'');
+      const why = typeof ws === 'object' ? ws.whyItMatters : '';
+      const fit = typeof ws === 'object' ? ws.personaFit : '';
+      item.innerHTML=`<div style="display:flex;gap:10px;align-items:flex-start"><div style="width:22px;height:22px;border-radius:50%;background:var(--teal);color:#fff;font-size:11px;font-weight:500;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px">${i+1}</div><div style="flex:1"><div style="font-size:13px;color:var(--text);font-weight:500;line-height:1.5;margin-bottom:5px">${opp}</div>${why?`<div style="font-size:12px;color:var(--text-muted);line-height:1.5;margin-bottom:5px">${why}</div>`:''}${fit?`<div style="font-size:11px;color:var(--teal-dark);background:var(--teal-light);padding:4px 8px;border-radius:4px;line-height:1.4">${fit}</div>`:''}</div></div>`;
+      wl.appendChild(item);
+    });
     document.getElementById('positioningStatement').textContent=data.positioningStatement;
     document.getElementById('vpStatement').textContent=data.valueProposition;
     reportText=`AUTOPOSITIONING REPORT — ${currentBizName.toUpperCase()}\nGenerated by AutoPositioning by TracElement\n${currentWebsite?'Website: '+currentWebsite+'\n':''}\n`
@@ -384,11 +420,15 @@
     try {
       const pdfBody = sessionId==='bypass_test' ? {sessionId,reportData:currentResult,bizName:currentBizName,website:currentWebsite} : {sessionId};
       const r=await fetch('/api/generate-pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pdfBody)});
-      if (!r.ok) throw new Error('PDF generation failed');
-      const blob=await r.blob(), url=URL.createObjectURL(blob), a=document.createElement('a');
-      a.href=url; a.download=`autopositioning-${currentBizName.toLowerCase().replace(/\s+/g,'-')}.pdf`; a.click(); URL.revokeObjectURL(url);
-      btn.textContent='Download again';
-    } catch(e) { alert('Download failed: '+e.message); btn.textContent='Download PDF report'; }
+      if (!r.ok) { const e=await r.json(); throw new Error(e.error||'Generation failed'); }
+      const html=await r.text();
+      const blob=new Blob([html],{type:'text/html'});
+      const url=URL.createObjectURL(blob);
+      const w=window.open(url,'_blank');
+      if (!w) { const a=document.createElement('a'); a.href=url; a.download=`autopositioning-${currentBizName.toLowerCase().replace(/\s+/g,'-')}.html`; a.click(); }
+      setTimeout(()=>URL.revokeObjectURL(url),5000);
+      btn.textContent='Open report again';
+    } catch(e) { alert('Failed: '+e.message); btn.textContent='Download PDF report'; }
     finally { btn.disabled=false; spin.style.display='none'; }
   }
 
