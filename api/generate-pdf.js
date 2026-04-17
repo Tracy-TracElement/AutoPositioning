@@ -1,103 +1,115 @@
-import chromium from '@sparticuz/chromium';
-import puppeteer from 'puppeteer-core';
 import { Redis } from '@upstash/redis';
 const kv = new Redis({ url: process.env.UPSTASH_REDIS_REST_URL, token: process.env.UPSTASH_REDIS_REST_TOKEN });
 
-export const config = { maxDuration: 30 };
+function generateHTML(data, bizName, website, date) {
+  const personas = (data.personas || []).map(p => {
+    const frusts = (p.frustrations || []).map(f => `<li style="font-size:11px;color:#666663;margin-bottom:3px">${f}</li>`).join('');
+    return `<div style="border:1px solid #e0dfd9;border-radius:8px;padding:14px;margin-bottom:10px">
+      <div style="font-size:13px;font-weight:bold;color:#1a1a19;margin-bottom:2px">${p.name||''}, ${p.age||''} — ${p.role||''}</div>
+      <div style="font-size:11px;color:#999996;margin-bottom:10px">${p.companySize||''}</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+        <div>
+          <div style="font-size:9px;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;color:#999996;margin-bottom:4px">Frustrations</div>
+          <ul style="list-style:none;padding:0;margin:0">${frusts}</ul>
+        </div>
+        <div>
+          <div style="font-size:9px;font-weight:bold;letter-spacing:0.06em;text-transform:uppercase;color:#999996;margin-bottom:4px">What wins them over</div>
+          <p style="font-size:11px;color:#085041;background:#e1f5ee;padding:6px 8px;border-radius:4px;line-height:1.4;margin:0">${p.whatWouldWinThem||''}</p>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
 
-function buildReportHTML(data, bizName, website, date) {
-  const competitorRows = data.competitors.map(c => `
-    <tr>
-      <td class="comp-name">${c.name}</td>
-      <td class="comp-pos">${c.positioning}</td>
-    </tr>`).join('');
+  const competitors = (data.competitors || []).map(c =>
+    `<tr><td style="font-size:12px;font-weight:bold;color:#1a1a19;width:140px;padding:9px 12px 9px 0;vertical-align:top;border-bottom:1px solid #f5f3ef">${c.name}</td><td style="font-size:12px;color:#666663;line-height:1.55;padding:9px 0;vertical-align:top;border-bottom:1px solid #f5f3ef">${c.positioning}</td></tr>`
+  ).join('');
 
-  const whiteSpaceItems = data.whiteSpace.map((ws, i) => `
-    <div class="ws-item">
-      <div class="ws-num">${i + 1}</div>
-      <div class="ws-text">${ws}</div>
-    </div>`).join('');
+  const whitespace = (data.whiteSpace || []).map((ws, i) => {
+    const opp = typeof ws === 'string' ? ws : (ws.opportunity || '');
+    const why = typeof ws === 'object' ? ws.whyItMatters : '';
+    const fit = typeof ws === 'object' ? ws.personaFit : '';
+    return `<div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f0ede8"><div style="display:flex;gap:12px;align-items:flex-start"><div style="width:22px;height:22px;border-radius:50%;background:#008080;color:#fff;font-size:11px;font-weight:bold;display:flex;align-items:center;justify-content:center;flex-shrink:0;min-width:22px">${i+1}</div><div><div style="font-size:13px;color:#1a1a19;font-weight:bold;line-height:1.5;margin-bottom:4px">${opp}</div>${why ? `<div style="font-size:11px;color:#666663;line-height:1.5;margin-bottom:5px">${why}</div>` : ''}${fit ? `<div style="font-size:10px;color:#085041;background:#e1f5ee;padding:4px 8px;border-radius:4px;line-height:1.4">${fit}</div>` : ''}</div></div></div>`;
+  }).join('');
 
-  const currentPosSection = (data.currentPositioning && data.currentPositioning !== 'null') ? `
-    <div class="section">
-      <div class="section-tag">Your current positioning</div>
-      <div class="section-note">Based on your website messaging as reviewed today</div>
-      <p class="body-text">${data.currentPositioning}</p>
+  const currentPos = (data.currentPositioning && data.currentPositioning !== 'null') ? `
+    <div style="padding:24px 0;border-bottom:1px solid #f0ede8">
+      <div style="display:inline-block;font-size:9px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;background:#e1f5ee;color:#085041;padding:3px 10px;border-radius:20px;margin-bottom:10px">Your current positioning</div>
+      <div style="font-size:11px;color:#999996;margin-bottom:12px">Based on your website messaging as reviewed today</div>
+      <p style="font-size:13px;color:#444441;line-height:1.65">${data.currentPositioning}</p>
     </div>` : '';
 
   return `<!DOCTYPE html>
 <html><head><meta charset="UTF-8">
 <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;1,400&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet">
 <style>
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; color: #1a1a19; background: #fff; width: 794px; }
-.header { background: #008080; padding: 36px 48px 32px; }
-.header-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px; }
-.brand-name { font-family: 'Playfair Display', serif; font-size: 22px; font-weight: 400; color: #fff; }
-.brand-sub { font-size: 11px; color: #9FE1CB; margin-top: 3px; }
-.date-label { font-size: 10px; color: #9FE1CB; letter-spacing: 0.08em; text-transform: uppercase; text-align: right; }
-.date-value { font-size: 12px; color: #fff; font-weight: 500; margin-top: 2px; text-align: right; }
-.header-divider { border: none; border-top: 1px solid rgba(255,255,255,0.2); margin-bottom: 20px; }
-.report-label { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #9FE1CB; margin-bottom: 6px; }
-.biz-name { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 400; color: #fff; line-height: 1.2; }
-.biz-cat { font-size: 13px; color: rgba(255,255,255,0.7); margin-top: 6px; }
-.body { padding: 0 48px 48px; }
-.section { padding: 24px 0; border-bottom: 1px solid #f0ede8; }
-.section:last-child { border-bottom: none; padding-bottom: 0; }
-.section-tag { display: inline-block; font-size: 9px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; background: #e1f5ee; color: #085041; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
-.section-note { font-size: 11px; color: #999996; margin-bottom: 12px; line-height: 1.4; }
-.body-text { font-size: 13px; color: #444441; line-height: 1.65; }
-table.comp-table { width: 100%; border-collapse: collapse; }
-table.comp-table tr { border-bottom: 1px solid #f5f3ef; }
-table.comp-table tr:last-child { border-bottom: none; }
-td.comp-name { font-size: 12px; font-weight: 500; color: #1a1a19; width: 140px; padding: 9px 12px 9px 0; vertical-align: top; }
-td.comp-pos { font-size: 12px; color: #666663; line-height: 1.55; padding: 9px 0; vertical-align: top; }
-.ws-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; }
-.ws-item:last-child { margin-bottom: 0; }
-.ws-num { width: 22px; height: 22px; border-radius: 50%; background: #008080; color: #fff; font-size: 11px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
-.ws-text { font-size: 13px; color: #444441; line-height: 1.6; }
-.positioning-block { background: #e1f5ee; border-left: 3px solid #008080; padding: 14px 18px; border-radius: 0 6px 6px 0; }
-.positioning-block p { font-family: 'Playfair Display', serif; font-size: 14px; font-style: italic; line-height: 1.7; color: #085041; }
-.vp-block { background: #f5f5f3; border-radius: 6px; padding: 14px 18px; }
-.vp-block p { font-size: 13px; line-height: 1.7; color: #444441; }
-.footer { background: #f5f5f3; border-top: 1px solid #e8e5df; padding: 12px 48px; display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
-.footer span { font-size: 10px; color: #999996; }
-</style></head><body>
-<div class="header">
-  <div class="header-top">
-    <div><div class="brand-name">AutoPositioning</div><div class="brand-sub">by TracElement Strategic Marketing</div></div>
-    <div><div class="date-label">Generated</div><div class="date-value">${date}</div></div>
-  </div>
-  <hr class="header-divider">
-  <div class="report-label">Positioning white space report</div>
-  <div class="biz-name">${bizName}</div>
-  <div class="biz-cat">${website || ''}</div>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', Arial, sans-serif; color: #1a1a19; background: #fff; }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .no-print { display: none; }
+  }
+</style>
+</head>
+<body style="max-width:794px;margin:0 auto">
+
+<div class="no-print" style="background:#f5f5f3;padding:16px 48px;border-bottom:1px solid #e0dfd9;display:flex;align-items:center;justify-content:space-between">
+  <span style="font-size:13px;color:#666663">Your AutoPositioning report is ready</span>
+  <button onclick="window.print()" style="background:#008080;color:#fff;border:none;border-radius:6px;padding:8px 20px;font-size:13px;cursor:pointer;font-family:inherit">Save as PDF</button>
 </div>
-<div class="body">
-  ${currentPosSection}
-  <div class="section">
-    <div class="section-tag">Competitive positioning map</div>
-    <div class="section-note">How named competitors are currently staking their claim</div>
-    <table class="comp-table">${competitorRows}</table>
+
+<div style="background:#008080;padding:36px 48px 32px">
+  <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:24px">
+    <div>
+      <div style="font-family:'Playfair Display',Georgia,serif;font-size:22px;font-weight:400;color:#fff">AutoPositioning</div>
+      <div style="font-size:11px;color:#9FE1CB;margin-top:3px">by TracElement Strategic Marketing</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:10px;color:#9FE1CB;letter-spacing:0.08em;text-transform:uppercase">Generated</div>
+      <div style="font-size:12px;color:#fff;font-weight:500;margin-top:2px">${date}</div>
+    </div>
   </div>
-  <div class="section">
-    <div class="section-tag">White space opportunities</div>
-    <div class="section-note">Positioning territory that is underserved or unclaimed in your category</div>
-    ${whiteSpaceItems}
+  <div style="border-top:1px solid rgba(255,255,255,0.2);margin-bottom:20px"></div>
+  <div style="font-size:10px;letter-spacing:0.1em;text-transform:uppercase;color:#9FE1CB;margin-bottom:6px">Positioning white space report</div>
+  <div style="font-family:'Playfair Display',Georgia,serif;font-size:30px;font-weight:400;color:#fff;line-height:1.2">${bizName}</div>
+  ${website ? `<div style="font-size:13px;color:rgba(255,255,255,0.7);margin-top:6px">${website}</div>` : ''}
+</div>
+
+<div style="padding:0 48px 48px">
+  ${currentPos}
+  <div style="padding:24px 0;border-bottom:1px solid #f0ede8">
+    <div style="display:inline-block;font-size:9px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;background:#e1f5ee;color:#085041;padding:3px 10px;border-radius:20px;margin-bottom:10px">Audience personas</div>
+    <div style="font-size:11px;color:#999996;margin-bottom:12px">Who you are really talking to — frustrations, triggers, and what wins them over</div>
+    ${personas}
   </div>
-  <div class="section">
-    <div class="section-tag">Recommended positioning</div>
-    <div class="positioning-block"><p>${data.positioningStatement}</p></div>
+  <div style="padding:24px 0;border-bottom:1px solid #f0ede8">
+    <div style="display:inline-block;font-size:9px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;background:#e1f5ee;color:#085041;padding:3px 10px;border-radius:20px;margin-bottom:10px">Competitive positioning map</div>
+    <div style="font-size:11px;color:#999996;margin-bottom:12px">How your named competitors are currently staking their claim</div>
+    <table style="width:100%;border-collapse:collapse">${competitors}</table>
   </div>
-  <div class="section">
-    <div class="section-tag">Value proposition</div>
-    <div class="vp-block"><p>${data.valueProposition}</p></div>
+  <div style="padding:24px 0;border-bottom:1px solid #f0ede8">
+    <div style="display:inline-block;font-size:9px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;background:#e1f5ee;color:#085041;padding:3px 10px;border-radius:20px;margin-bottom:10px">White space opportunities</div>
+    <div style="font-size:11px;color:#999996;margin-bottom:12px">Positioning territory that is underserved or unclaimed in your category</div>
+    ${whitespace}
+  </div>
+  <div style="padding:24px 0;border-bottom:1px solid #f0ede8">
+    <div style="display:inline-block;font-size:9px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;background:#e1f5ee;color:#085041;padding:3px 10px;border-radius:20px;margin-bottom:12px">Recommended positioning</div>
+    <div style="background:#e1f5ee;border-left:3px solid #008080;padding:14px 18px;border-radius:0 6px 6px 0">
+      <p style="font-family:'Playfair Display',Georgia,serif;font-size:14px;font-style:italic;line-height:1.7;color:#085041">${data.positioningStatement}</p>
+    </div>
+  </div>
+  <div style="padding:24px 0">
+    <div style="display:inline-block;font-size:9px;font-weight:bold;letter-spacing:0.1em;text-transform:uppercase;background:#e1f5ee;color:#085041;padding:3px 10px;border-radius:20px;margin-bottom:12px">Value proposition</div>
+    <div style="background:#f5f5f3;border-radius:6px;padding:14px 18px">
+      <p style="font-size:13px;line-height:1.7;color:#444441">${data.valueProposition}</p>
+    </div>
   </div>
 </div>
-<div class="footer">
-  <span>Prepared for ${bizName}</span>
-  <span>AutoPositioning by TracElement · tracelement.com.au</span>
+
+<div style="background:#f5f5f3;border-top:1px solid #e8e5df;padding:12px 48px;display:flex;justify-content:space-between;align-items:center">
+  <span style="font-size:10px;color:#999996">Prepared for ${bizName}</span>
+  <span style="font-size:10px;color:#999996">AutoPositioning by TracElement · tracelement.com.au</span>
 </div>
+
 </body></html>`;
 }
 
@@ -108,54 +120,25 @@ export default async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { sessionId } = req.body;
+  const { sessionId, reportData, bizName, website } = req.body;
   if (!sessionId) return res.status(400).json({ error: 'sessionId required' });
 
-  // Verify payment before generating
   try {
-    let reportData, bizName, website;
-
+    let data, biz, site;
     if (sessionId === 'bypass_test') {
-      const body = req.body;
-      reportData = body.reportData;
-      bizName = body.bizName || 'Test Business';
-      website = body.website || '';
-      if (!reportData) return res.status(400).json({ error: 'No report data provided' });
+      data = reportData; biz = bizName || 'Test'; site = website || '';
+      if (!data) return res.status(400).json({ error: 'No report data' });
     } else {
-      const entry = JSON.parse(await kv.get(sessionId) || 'null');
+      const entry = await kv.get(sessionId);
       if (!entry) return res.status(404).json({ error: 'Session not found' });
       if (!entry.hasPaid) return res.status(403).json({ error: 'Payment required' });
-      reportData = entry.reportData;
-      bizName = entry.bizName;
-      website = entry.website;
+      data = entry.reportData; biz = entry.bizName; site = entry.website || '';
     }
     const date = new Date().toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
-
-    let browser;
-    try {
-      browser = await puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath(),
-        headless: chromium.headless,
-      });
-
-      const page = await browser.newPage();
-      await page.setContent(buildReportHTML(reportData, bizName, website, date), { waitUntil: 'networkidle0' });
-
-      const pdf = await page.pdf({
-        format: 'A4',
-        printBackground: true,
-        margin: { top: '0', right: '0', bottom: '0', left: '0' }
-      });
-
-      res.setHeader('Content-Type', 'application/pdf');
-      res.setHeader('Content-Disposition', `attachment; filename="autopositioning-${bizName.toLowerCase().replace(/\s+/g, '-')}.pdf"`);
-      return res.send(pdf);
-
-    } finally {
-      if (browser) await browser.close();
-    }
+    const html = generateHTML(data, biz, site, date);
+    res.setHeader('Content-Type', 'text/html; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="autopositioning-${(biz||'report').toLowerCase().replace(/\s+/g,'-')}.html"`);
+    return res.send(html);
   } catch (err) {
     return res.status(500).json({ error: err.message });
   }
