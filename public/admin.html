@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin — AutoPositioning</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --teal: #008080; --teal-light: #e1f5ee; --teal-dark: #085041; --border: #e0dfd9; --text: #1a1a19; --text-muted: #666663; --text-hint: #999996; --grey-light: #f5f5f3; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--grey-light); color: var(--text); min-height: 100vh; }
+    .nav { background: #fff; border-bottom: 1px solid var(--border); padding: 0 2rem; height: 52px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-title { font-size: 15px; font-weight: 500; }
+    .nav-badge { font-size: 10px; background: var(--teal-light); color: var(--teal-dark); padding: 3px 8px; border-radius: 20px; margin-left: 8px; }
+    .page { max-width: 900px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* Login */
+    .login-wrap { max-width: 360px; margin: 4rem auto; background: #fff; border: 1px solid var(--border); border-radius: 14px; padding: 2rem; text-align: center; }
+    .login-wrap h2 { font-size: 18px; font-weight: 500; margin-bottom: 0.5rem; }
+    .login-wrap p { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; }
+    .login-wrap input { width: 100%; font-family: 'DM Sans', sans-serif; font-size: 14px; padding: 10px 13px; border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; }
+    .login-wrap input:focus { outline: none; border-color: var(--teal); }
+    .btn { display: inline-flex; align-items: center; gap: 6px; background: var(--teal); color: #fff; border: none; border-radius: 8px; padding: 11px 22px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500; cursor: pointer; width: 100%; justify-content: center; }
+    .btn:hover { opacity: 0.88; }
+
+    /* Stats row */
+    .stats-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem; }
+    .stat-label { font-size: 11px; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .stat-value { font-size: 28px; font-weight: 500; color: var(--text); }
+
+    /* Table */
+    .table-card { background: #fff; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+    .table-header { padding: 1rem 1.25rem; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+    .table-header h3 { font-size: 14px; font-weight: 500; }
+    table { width: 100%; border-collapse: collapse; }
+    th { font-size: 11px; font-weight: 500; color: var(--text-hint); text-transform: uppercase; letter-spacing: 0.06em; padding: 10px 16px; text-align: left; border-bottom: 1px solid var(--border); background: var(--grey-light); }
+    td { font-size: 13px; padding: 10px 16px; border-bottom: 1px solid #f5f3ef; color: var(--text-muted); vertical-align: top; }
+    tr:last-child td { border-bottom: none; }
+    td.email { color: var(--text); font-weight: 500; }
+    .paid-badge { display: inline-block; font-size: 10px; font-weight: 500; background: var(--teal-light); color: var(--teal-dark); padding: 2px 8px; border-radius: 20px; }
+    .unpaid-badge { display: inline-block; font-size: 10px; background: var(--grey-light); color: var(--text-hint); padding: 2px 8px; border-radius: 20px; border: 1px solid var(--border); }
+    .refresh-btn { font-family: 'DM Sans', sans-serif; font-size: 12px; padding: 6px 14px; border: 1px solid var(--border); border-radius: 6px; background: #fff; cursor: pointer; color: var(--text-muted); }
+    .refresh-btn:hover { background: var(--grey-light); }
+    .error-msg { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; font-size: 13px; margin-bottom: 1rem; display: none; }
+    .loading { text-align: center; padding: 2rem; font-size: 13px; color: var(--text-hint); }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div>
+    <span class="nav-title">AutoPositioning</span>
+    <span class="nav-badge">Admin</span>
+  </div>
+  <span style="font-size:12px; color: var(--text-hint);" id="loggedInAs"></span>
+</nav>
+
+<!-- Login screen -->
+<div id="loginScreen">
+  <div class="login-wrap">
+    <h2>Admin access</h2>
+    <p>Enter your admin key to view leads and reports.</p>
+    <input type="password" id="adminKeyInput" placeholder="Admin key" />
+    <div class="error-msg" id="loginError">Incorrect key.</div>
+    <button class="btn" onclick="login()">Sign in</button>
+  </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard" style="display:none;">
+  <div class="page">
+
+    <div class="stats-row" id="statsRow">
+      <div class="stat-card"><div class="stat-label">Total leads</div><div class="stat-value" id="statLeads">—</div></div>
+      <div class="stat-card"><div class="stat-label">Paid reports</div><div class="stat-value" id="statPaid">—</div></div>
+      <div class="stat-card"><div class="stat-label">Conversion rate</div><div class="stat-value" id="statConversion">—</div></div>
+    </div>
+
+    <div class="table-card">
+      <div class="table-header">
+        <h3>All leads</h3>
+        <button class="refresh-btn" onclick="loadData()">Refresh</button>
+      </div>
+      <div id="tableWrap"><div class="loading">Loading…</div></div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+  let adminKey = '';
+
+  document.getElementById('adminKeyInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') login();
+  });
+
+  async function login() {
+    adminKey = document.getElementById('adminKeyInput').value.trim();
+    if (!adminKey) return;
+
+    try {
+      const resp = await fetch(`/api/admin?detail=true`, {
+        headers: { 'x-admin-key': adminKey }
+      });
+
+      if (!resp.ok) {
+        document.getElementById('loginError').style.display = 'block';
+        return;
+      }
+
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('dashboard').style.display = 'block';
+      document.getElementById('loggedInAs').textContent = 'Signed in';
+      loadData();
+    } catch {
+      document.getElementById('loginError').style.display = 'block';
+    }
+  }
+
+  async function loadData() {
+    document.getElementById('tableWrap').innerHTML = '<div class="loading">Loading…</div>';
+
+    try {
+      const resp = await fetch(`/api/admin?detail=true`, {
+        headers: { 'x-admin-key': adminKey }
+      });
+
+      if (!resp.ok) return;
+      const list = await resp.json();
+
+      const total = list.length;
+      const paid = list.filter(l => l.hasPaid).length;
+      const rate = total > 0 ? Math.round((paid / total) * 100) + '%' : '—';
+
+      document.getElementById('statLeads').textContent = total;
+      document.getElementById('statPaid').textContent = paid;
+      document.getElementById('statConversion').textContent = rate;
+
+      if (list.length === 0) {
+        document.getElementById('tableWrap').innerHTML = '<div class="loading">No leads yet.</div>';
+        return;
+      }
+
+      const rows = list.map(item => {
+        const date = new Date(item.capturedAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short', year: 'numeric' });
+        const paidDate = item.paidAt ? new Date(item.paidAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'short' }) : '';
+        const badge = item.hasPaid
+          ? `<span class="paid-badge">Paid ${paidDate}</span>`
+          : `<span class="unpaid-badge">Free user</span>`;
+
+        return `<tr>
+          <td class="email">${item.email || '—'}</td>
+          <td>${item.bizName || '—'}</td>
+          <td>${item.industry || '—'}</td>
+          <td>${date}</td>
+          <td>${badge}</td>
+        </tr>`;
+      }).join('');
+
+      document.getElementById('tableWrap').innerHTML = `
+        <table>
+          <thead><tr>
+            <th>Email</th>
+            <th>Business</th>
+            <th>Industry</th>
+            <th>Captured</th>
+            <th>Status</th>
+          </tr></thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+
+    } catch (err) {
+      document.getElementById('tableWrap').innerHTML = `<div class="loading">Error: ${err.message}</div>`;
+    }
+  }
+</script>
+
+</body>
+</html>

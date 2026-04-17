@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AutoPositioning — Find the white space your brand can own</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --teal: #008080; --teal-light: #e1f5ee; --teal-dark: #085041; --grey-light: #f5f5f3; --border: #e0dfd9; --text: #1a1a19; --text-muted: #666663; --text-hint: #999996; --white: #ffffff; }
+    body { font-family: 'DM Sans', sans-serif; background: var(--grey-light); color: var(--text); min-height: 100vh; }
+    .nav { background: var(--white); border-bottom: 1px solid var(--border); padding: 0 2rem; height: 56px; display: flex; align-items: center; justify-content: space-between; }
+    .nav-logo { font-family: 'Playfair Display', serif; font-size: 18px; font-weight: 400; color: var(--text); text-decoration: none; }
+    .nav-by { font-size: 11px; color: var(--text-hint); margin-left: 8px; }
+    .nav-right { font-size: 12px; color: var(--text-hint); }
+    .page-wrap { max-width: 600px; margin: 0 auto; padding: 2.5rem 1.5rem 5rem; }
+    .screen { display: none; }
+    .screen.active { display: block; }
+    .hidden { display: none !important; }
+
+    /* Steps */
+    .steps-row { display: flex; justify-content: center; margin-bottom: 2rem; }
+    .step { display: flex; flex-direction: column; align-items: center; gap: 6px; flex: 1; max-width: 120px; }
+    .step-circle { width: 32px; height: 32px; border-radius: 50%; background: var(--grey-light); border: 1px solid var(--border); color: var(--text-hint); font-size: 13px; font-weight: 500; display: flex; align-items: center; justify-content: center; }
+    .step-circle.done { background: var(--teal); color: #fff; border-color: var(--teal); }
+    .step-circle.active { background: var(--teal); color: #fff; border-color: var(--teal); box-shadow: 0 0 0 4px rgba(0,128,128,0.15); }
+    .step-label { font-size: 11px; color: var(--text-hint); text-align: center; line-height: 1.3; }
+    .step-connector { flex: 1; height: 1px; background: var(--border); margin-top: 15px; max-width: 40px; }
+
+    /* Cards */
+    .card { background: var(--white); border: 1px solid var(--border); border-radius: 14px; padding: 2rem; margin-bottom: 1.25rem; }
+    .card-title { font-size: 17px; font-weight: 500; margin-bottom: 0.4rem; }
+    .card-sub { font-size: 13px; color: var(--text-muted); margin-bottom: 1.5rem; line-height: 1.5; }
+    .register-hero { text-align: center; margin-bottom: 2rem; }
+    .register-hero h1 { font-family: 'Playfair Display', serif; font-size: 30px; font-weight: 400; line-height: 1.25; margin-bottom: 0.75rem; }
+    .register-hero p { font-size: 14px; color: var(--text-muted); line-height: 1.6; max-width: 460px; margin: 0 auto; }
+
+    /* Form */
+    .form-grid { display: flex; flex-direction: column; gap: 1rem; }
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .field { display: flex; flex-direction: column; gap: 5px; }
+    .field label { font-size: 11px; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+    .field input, .field textarea { font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text); background: var(--white); border: 1px solid var(--border); border-radius: 8px; padding: 10px 13px; width: 100%; transition: border-color 0.15s, box-shadow 0.15s; resize: vertical; }
+    .field input:focus, .field textarea:focus { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px rgba(0,128,128,0.1); }
+    .field-hint { font-size: 11px; color: var(--text-hint); line-height: 1.5; }
+
+    /* Includes + price */
+    .includes-list { display: flex; flex-direction: column; gap: 7px; margin-bottom: 1.25rem; }
+    .include-item { display: flex; align-items: center; gap: 9px; font-size: 13px; color: var(--text-muted); }
+    .check { width: 18px; height: 18px; border-radius: 50%; background: var(--teal-light); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .check svg { width: 9px; height: 9px; }
+    .price-block { background: var(--grey-light); border-radius: 8px; padding: 1rem 1.25rem; margin-bottom: 1.25rem; display: flex; align-items: center; justify-content: space-between; }
+    .price-label { font-size: 13px; color: var(--text-muted); }
+    .price-note { font-size: 11px; color: var(--text-hint); margin-top: 2px; }
+    .price-amount { font-size: 24px; font-weight: 500; color: var(--text); }
+
+    /* Buttons */
+    .btn-primary { display: flex; align-items: center; justify-content: center; gap: 8px; background: var(--teal); color: #fff; border: none; border-radius: 8px; padding: 13px 28px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500; cursor: pointer; transition: opacity 0.15s; width: 100%; }
+    .btn-primary:hover { opacity: 0.88; }
+    .btn-primary:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary.auto { width: auto; }
+    .btn-outline { display: inline-flex; align-items: center; gap: 6px; background: transparent; color: var(--text-muted); border: 1px solid var(--border); border-radius: 8px; padding: 10px 18px; font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer; transition: background 0.15s; }
+    .btn-outline:hover { background: var(--grey-light); }
+
+    /* Notices */
+    .error-msg { display: none; font-size: 13px; color: #b91c1c; background: #fef2f2; border: 1px solid #fecaca; border-radius: 8px; padding: 10px 14px; margin-top: 0.75rem; }
+    .welcome-banner { background: var(--teal-light); border: 1px solid rgba(0,128,128,0.2); border-radius: 10px; padding: 0.875rem 1.25rem; margin-bottom: 1.25rem; font-size: 13px; color: var(--teal-dark); display: none; }
+    .cancelled-notice { background: #fff8ed; border: 1px solid #fde68a; border-radius: 10px; padding: 0.875rem 1.25rem; margin-bottom: 1.25rem; font-size: 13px; color: #92400e; display: none; }
+
+    /* Loading */
+    .loading-state { display: none; flex-direction: column; align-items: center; gap: 1.25rem; padding: 3rem 1rem; text-align: center; }
+    .loading-state.active { display: flex; }
+    .spinner { width: 44px; height: 44px; border-radius: 50%; border: 2px solid var(--teal-light); border-top-color: var(--teal); animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-label { font-size: 14px; color: var(--text-muted); font-weight: 500; }
+    .loading-step { font-size: 12px; color: var(--text-hint); font-style: italic; }
+
+    /* Results */
+    .results { display: none; flex-direction: column; gap: 1.1rem; }
+    .results.active { display: flex; }
+    .result-card { background: var(--white); border: 1px solid var(--border); border-radius: 12px; padding: 1.25rem 1.5rem; }
+    .result-label { display: inline-block; font-size: 9px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; background: var(--teal-light); color: var(--teal-dark); padding: 3px 9px; border-radius: 20px; margin-bottom: 0.6rem; }
+    .result-sub { font-size: 11px; color: var(--text-hint); margin-bottom: 0.75rem; }
+    .comp-row { display: grid; grid-template-columns: 140px 1fr; gap: 12px; padding: 8px 0; border-bottom: 1px solid #f5f3ef; }
+    .comp-row:last-child { border-bottom: none; }
+    .comp-name { font-size: 12px; font-weight: 500; color: var(--text); }
+    .comp-pos { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+    .ws-list { display: flex; flex-direction: column; gap: 8px; }
+    .ws-item { display: flex; gap: 10px; align-items: flex-start; }
+    .ws-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--teal); flex-shrink: 0; margin-top: 5px; }
+    .ws-text { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+    .positioning-block { background: var(--teal-light); border-left: 3px solid var(--teal); border-radius: 0 8px 8px 0; padding: 1rem 1.25rem; }
+    .positioning-block p { font-size: 14px; line-height: 1.65; color: var(--teal-dark); font-style: italic; font-family: 'Playfair Display', serif; }
+    .vp-block { background: var(--grey-light); border-radius: 8px; padding: 1rem 1.25rem; }
+    .vp-block p { font-size: 13px; line-height: 1.65; color: #444441; }
+    .result-actions { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+    .pdf-spin { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--border); border-top-color: var(--teal); animation: spin 0.8s linear infinite; display: none; }
+
+    .site-footer { text-align: center; margin-top: 3rem; font-size: 12px; color: var(--text-hint); }
+    .site-footer a { color: var(--teal); text-decoration: none; }
+
+    @media (max-width: 520px) { .two-col { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div><a href="/" class="nav-logo">AutoPositioning</a><span class="nav-by">by TracElement</span></div>
+  <span class="nav-right">Powered by Claude AI</span>
+</nav>
+
+<div class="page-wrap">
+
+  <div class="steps-row">
+    <div class="step"><div class="step-circle active" id="s1">1</div><div class="step-label">Your details</div></div>
+    <div class="step-connector"></div>
+    <div class="step"><div class="step-circle" id="s2">2</div><div class="step-label">Payment</div></div>
+    <div class="step-connector"></div>
+    <div class="step"><div class="step-circle" id="s3">3</div><div class="step-label">Analysis</div></div>
+    <div class="step-connector"></div>
+    <div class="step"><div class="step-circle" id="s4">4</div><div class="step-label">PDF report</div></div>
+  </div>
+
+  <!-- Screen 1: Register -->
+  <div class="screen active" id="screenRegister">
+    <div class="register-hero">
+      <h1>Find the white space your brand can own</h1>
+      <p>Get a competitive positioning map, white space analysis, positioning statement, and branded PDF report.</p>
+    </div>
+
+    <div class="cancelled-notice" id="cancelledNotice">No worries — your payment was cancelled. Enter your details again whenever you're ready.</div>
+
+    <div class="card">
+      <div class="card-title">Your details</div>
+      <div class="card-sub">We'll send a copy of your report to this email.</div>
+      <div class="form-grid">
+        <div class="two-col">
+          <div class="field"><label>First name</label><input type="text" id="firstName" placeholder="Sarah" /></div>
+          <div class="field"><label>Last name</label><input type="text" id="lastName" placeholder="Mitchell" /></div>
+        </div>
+        <div class="field"><label>Email address</label><input type="email" id="emailInput" placeholder="you@yourbusiness.com.au" /></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">What you get</div>
+      <div class="includes-list" style="margin-top:0.75rem;">
+        <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Competitive positioning map</div>
+        <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Three unclaimed white space opportunities</div>
+        <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Recommended positioning statement</div>
+        <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Value proposition draft</div>
+        <div class="include-item"><div class="check"><svg viewBox="0 0 10 10" fill="none" stroke="#008080" stroke-width="2"><polyline points="1,5 4,8 9,2"/></svg></div>Branded PDF report to keep and share</div>
+      </div>
+      <div class="price-block">
+        <div><div class="price-label">One-time payment</div><div class="price-note">Secure checkout via Stripe</div></div>
+        <div><span class="price-amount" id="priceDisplay">$47</span> <span style="font-size:13px;color:var(--text-muted)">AUD</span></div>
+      </div>
+      <div id="registerError" class="error-msg"></div>
+      <button class="btn-primary" id="payBtn" onclick="registerAndPay()">Continue to payment →</button>
+      <p style="font-size:11px;color:var(--text-hint);text-align:center;margin-top:0.75rem;">You'll be redirected to Stripe. We never store your card details.</p>
+    </div>
+  </div>
+
+  <!-- Screen 2: Tool (unlocked after payment) -->
+  <div class="screen" id="screenTool">
+    <div class="welcome-banner" id="welcomeBanner"></div>
+
+    <div id="toolForm">
+      <div class="card">
+        <div class="card-title">Tell us about the business</div>
+        <div class="card-sub">The more specific you are about competitors, the sharper the white space analysis.</div>
+        <div class="form-grid">
+          <div class="two-col">
+            <div class="field"><label>Business name</label><input type="text" id="bizName" placeholder="e.g. Bloom Studio" /></div>
+            <div class="field"><label>Industry / category</label><input type="text" id="industry" placeholder="e.g. HR software for SMEs" /></div>
+          </div>
+          <div class="field">
+            <label>Business website</label>
+            <input type="url" id="website" placeholder="e.g. https://bloomstudio.com.au" />
+            <span class="field-hint">We'll review current messaging before identifying white space.</span>
+          </div>
+          <div class="field"><label>What you do — in plain English</label><textarea id="whatYouDo" rows="2" placeholder="e.g. We help small businesses run payroll without the spreadsheet nightmare"></textarea></div>
+          <div class="field"><label>Primary target audience</label><input type="text" id="audience" placeholder="e.g. Founders and ops managers in businesses with 5–50 staff" /></div>
+          <div class="field">
+            <label>Name 2–4 competitors</label>
+            <input type="text" id="competitors" placeholder="e.g. Employment Hero, Deputy, Rippling, KeyPay" />
+            <span class="field-hint">The more specific, the sharper the analysis.</span>
+          </div>
+          <div class="field"><label>What makes you different (a hunch is fine)</label><textarea id="differentiation" rows="2" placeholder="e.g. We're the only one that handles contractor payments without a separate system."></textarea></div>
+          <div id="formError" class="error-msg"></div>
+          <button class="btn-primary" id="runBtn" onclick="runAnalysis()">Analyse positioning white space →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="loading-state" id="loadingState">
+      <div class="spinner"></div>
+      <p class="loading-label">Researching the competitive landscape…</p>
+      <p class="loading-step" id="loadingStep">Scanning competitor positioning</p>
+    </div>
+
+    <div class="results" id="results">
+      <div class="result-card" id="currentPosCard" style="display:none;">
+        <span class="result-label">Current positioning</span>
+        <p class="result-sub">Based on website messaging today</p>
+        <p id="currentPositioning" style="font-size:13px;line-height:1.65;color:var(--text-muted);"></p>
+      </div>
+      <div class="result-card">
+        <span class="result-label">Competitive positioning map</span>
+        <p class="result-sub">How named competitors are currently staking their claim</p>
+        <div id="compTable"></div>
+      </div>
+      <div class="result-card">
+        <span class="result-label">White space opportunities</span>
+        <p class="result-sub">Positioning territory that is underserved or unclaimed</p>
+        <div class="ws-list" id="wsList"></div>
+      </div>
+      <div class="result-card">
+        <span class="result-label">Recommended positioning</span>
+        <div class="positioning-block"><p id="positioningStatement"></p></div>
+      </div>
+      <div class="result-card">
+        <span class="result-label">Value proposition</span>
+        <div class="vp-block"><p id="vpStatement"></p></div>
+      </div>
+      <div class="result-actions">
+        <button class="btn-primary auto" id="pdfBtn" onclick="downloadPDF()">Download PDF report</button>
+        <button class="btn-outline" onclick="copyReport()">Copy text</button>
+        <div class="pdf-spin" id="pdfSpin"></div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="site-footer">
+    <p>Built by <a href="https://tracelement.com.au" target="_blank">TracElement Strategic Marketing</a> · Powered by Claude AI</p>
+  </footer>
+</div>
+
+<script>
+  const STEPS = ['s1','s2','s3','s4'];
+  const loadingSteps = ['Reading the website…','Scanning competitor positioning…','Mapping claimed territory…','Identifying white space…','Crafting the positioning…','Finalising value proposition…'];
+  let stepInterval, sessionId = localStorage.getItem('ap_session'), currentResult = null, currentBizName = '', currentWebsite = '', reportText = '';
+
+  fetch('/api/config').then(r=>r.json()).then(c=>{ if(c.price) document.getElementById('priceDisplay').textContent=c.price; }).catch(()=>{});
+
+  const params = new URLSearchParams(window.location.search);
+  const payStatus = params.get('payment'), urlSession = params.get('session');
+  const bypass = params.get('bypass');
+
+  // Test bypass — skip payment for testing purposes
+  if (bypass === (window._bypassKey || 'tractest2024')) {
+    window.history.replaceState({}, '', '/');
+    sessionId = 'bypass_test';
+    localStorage.setItem('ap_session', 'bypass_test');
+    unlockTool('Tracy');
+    setStep(3);
+  } else if (payStatus === 'success' && urlSession) {
+    sessionId = urlSession; localStorage.setItem('ap_session', sessionId);
+    window.history.replaceState({}, '', '/');
+    checkAndUnlock(sessionId);
+  } else if (payStatus === 'cancelled') {
+    window.history.replaceState({}, '', '/');
+    document.getElementById('cancelledNotice').style.display = 'block';
+    setStep(1);
+  } else if (sessionId && sessionId !== 'bypass_test') {
+    checkAndUnlock(sessionId, true);
+  } else if (sessionId === 'bypass_test') {
+    unlockTool('Tracy');
+    setStep(3);
+  } else {
+    setStep(1);
+  }
+
+  function setStep(n) {
+    STEPS.forEach((id, i) => {
+      const el = document.getElementById(id);
+      el.className = 'step-circle' + (i+1 < n ? ' done' : i+1 === n ? ' active' : '');
+    });
+  }
+
+  async function checkAndUnlock(sid, silent=false) {
+    try {
+      const r = await fetch(`/api/check-session?sessionId=${sid}`);
+      if (!r.ok) { if (!silent) setStep(1); return; }
+      const d = await r.json();
+      if (d.hasPaid) {
+        unlockTool(d.name);
+        if (d.hasReport && d.reportData) {
+          currentResult = d.reportData; currentBizName = d.bizName||''; currentWebsite = d.website||'';
+          document.getElementById('toolForm').classList.add('hidden');
+          renderResults(d.reportData); setStep(4);
+        } else { setStep(3); }
+      } else { if (!silent) setStep(1); }
+    } catch { if (!silent) setStep(1); }
+  }
+
+  function unlockTool(name) {
+    document.getElementById('screenRegister').classList.remove('active');
+    document.getElementById('screenTool').classList.add('active');
+    if (name) {
+      const b = document.getElementById('welcomeBanner');
+      b.style.display = 'block';
+      b.textContent = `Welcome, ${name}. Your access is confirmed — fill in the details below to run your analysis.`;
+    }
+  }
+
+  async function registerAndPay() {
+    const first = document.getElementById('firstName').value.trim();
+    const last = document.getElementById('lastName').value.trim();
+    const email = document.getElementById('emailInput').value.trim();
+    const err = document.getElementById('registerError');
+    err.style.display = 'none';
+    if (!first || !last) { err.style.display='block'; err.textContent='Please enter your first and last name.'; return; }
+    if (!email || !email.includes('@')) { err.style.display='block'; err.textContent='Please enter a valid email address.'; return; }
+    const btn = document.getElementById('payBtn');
+    btn.disabled = true; btn.textContent = 'Redirecting to payment…';
+    try {
+      const r = await fetch('/api/register-and-checkout', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ name:`${first} ${last}`, email }) });
+      const d = await r.json();
+      if (!r.ok || !d.checkoutUrl) throw new Error(d.error||'Checkout failed');
+      window.location.href = d.checkoutUrl;
+    } catch(e) {
+      err.style.display='block'; err.textContent='Something went wrong: '+e.message;
+      btn.disabled=false; btn.textContent='Continue to payment →';
+    }
+  }
+
+  function showLoading() {
+    document.getElementById('toolForm').classList.add('hidden');
+    document.getElementById('results').classList.remove('active');
+    document.getElementById('loadingState').classList.add('active');
+    let i=0; stepInterval = setInterval(()=>{ document.getElementById('loadingStep').textContent=loadingSteps[i%loadingSteps.length]; i++; }, 2200);
+  }
+
+  function hideLoading() { clearInterval(stepInterval); document.getElementById('loadingState').classList.remove('active'); }
+
+  async function runAnalysis() {
+    const bizName=document.getElementById('bizName').value.trim(), industry=document.getElementById('industry').value.trim(),
+      website=document.getElementById('website').value.trim(), whatYouDo=document.getElementById('whatYouDo').value.trim(),
+      audience=document.getElementById('audience').value.trim(), competitors=document.getElementById('competitors').value.trim(),
+      differentiation=document.getElementById('differentiation').value.trim(), err=document.getElementById('formError');
+    if (!bizName||!industry||!whatYouDo||!audience||!competitors) { err.style.display='block'; err.textContent='Please fill in all required fields.'; return; }
+    err.style.display='none'; currentBizName=bizName; currentWebsite=website;
+    document.getElementById('runBtn').disabled=true; setStep(3); showLoading();
+
+    let websiteSummary=null;
+    if (website) { try { const r=await fetch('/api/website-summary',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:website,bizName})}); websiteSummary=(await r.json()).summary||null; } catch{} }
+
+    try {
+      const r=await fetch('/api/analyse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({bizName,industry,website,whatYouDo,audience,competitors,differentiation,websiteSummary})});
+      if (!r.ok) { const e=await r.json(); throw new Error(e.error||`Error ${r.status}`); }
+      const data=await r.json(); currentResult=data; hideLoading(); renderResults(data); setStep(4);
+      if (sessionId) { fetch('/api/save-report',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sessionId,reportData:data,bizName,industry,website})}).catch(()=>{}); }
+    } catch(e) {
+      hideLoading(); document.getElementById('toolForm').classList.remove('hidden');
+      err.style.display='block'; err.textContent='Something went wrong: '+e.message;
+      document.getElementById('runBtn').disabled=false; setStep(3);
+    }
+  }
+
+  function renderResults(data) {
+    if (data.currentPositioning && data.currentPositioning!=='null') { document.getElementById('currentPositioning').textContent=data.currentPositioning; document.getElementById('currentPosCard').style.display='block'; }
+    const ct=document.getElementById('compTable'); ct.innerHTML='';
+    data.competitors.forEach(c=>{ const r=document.createElement('div'); r.className='comp-row'; r.innerHTML=`<div class="comp-name">${c.name}</div><div class="comp-pos">${c.positioning}</div>`; ct.appendChild(r); });
+    const wl=document.getElementById('wsList'); wl.innerHTML='';
+    data.whiteSpace.forEach(ws=>{ const i=document.createElement('div'); i.className='ws-item'; i.innerHTML=`<div class="ws-dot"></div><div class="ws-text">${ws}</div>`; wl.appendChild(i); });
+    document.getElementById('positioningStatement').textContent=data.positioningStatement;
+    document.getElementById('vpStatement').textContent=data.valueProposition;
+    reportText=`AUTOPOSITIONING REPORT — ${currentBizName.toUpperCase()}\nGenerated by AutoPositioning by TracElement\n${currentWebsite?'Website: '+currentWebsite+'\n':''}\n`
+      +(data.currentPositioning&&data.currentPositioning!=='null'?`CURRENT POSITIONING\n${data.currentPositioning}\n\n`:'')
+      +`COMPETITIVE POSITIONING MAP\n${data.competitors.map(c=>`${c.name}: ${c.positioning}`).join('\n')}\n\n`
+      +`WHITE SPACE OPPORTUNITIES\n${data.whiteSpace.map((ws,i)=>`${i+1}. ${ws}`).join('\n')}\n\n`
+      +`RECOMMENDED POSITIONING\n${data.positioningStatement}\n\nVALUE PROPOSITION\n${data.valueProposition}`;
+    document.getElementById('welcomeBanner').style.display='none';
+    document.getElementById('results').classList.add('active');
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  async function downloadPDF() {
+    if (!currentResult||!sessionId) return;
+    const btn=document.getElementById('pdfBtn'), spin=document.getElementById('pdfSpin');
+    btn.disabled=true; btn.textContent='Generating…'; spin.style.display='block';
+    try {
+      const pdfBody = sessionId==='bypass_test' ? {sessionId,reportData:currentResult,bizName:currentBizName,website:currentWebsite} : {sessionId};
+      const r=await fetch('/api/generate-pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pdfBody)});
+      if (!r.ok) throw new Error('PDF generation failed');
+      const blob=await r.blob(), url=URL.createObjectURL(blob), a=document.createElement('a');
+      a.href=url; a.download=`autopositioning-${currentBizName.toLowerCase().replace(/\s+/g,'-')}.pdf`; a.click(); URL.revokeObjectURL(url);
+      btn.textContent='Download again';
+    } catch(e) { alert('Download failed: '+e.message); btn.textContent='Download PDF report'; }
+    finally { btn.disabled=false; spin.style.display='none'; }
+  }
+
+  function copyReport() {
+    if (!reportText) return;
+    navigator.clipboard.writeText(reportText).then(()=>{ const b=event.target; b.textContent='Copied!'; setTimeout(()=>b.textContent='Copy text',2000); });
+  }
+
+  document.getElementById('emailInput').addEventListener('keydown', e=>{ if(e.key==='Enter') registerAndPay(); });
+</script>
+</body>
+</html>
