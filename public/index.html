@@ -398,9 +398,15 @@
 
     // Fetch own website summary
     let websiteSummary=null;
-    if (website) { try { const r=await fetch('/api/website-summary',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:website,bizName})}); websiteSummary=(await r.json()).summary||null; } catch{} }
+    if (website) {
+      try {
+        const r=await fetch('/api/website-summary',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url:website,bizName})});
+        websiteSummary=(await r.json()).summary||null;
+      } catch{}
+      await new Promise(resolve => setTimeout(resolve, 4000));
+    }
 
-    // Fetch competitor website summaries one at a time to avoid rate limits
+    // Fetch competitor website summaries one at a time with delay to avoid rate limits
     document.getElementById('loadingStep').textContent='Reading competitor websites…';
     const competitorSummaries = [];
     for (const url of competitorUrls) {
@@ -408,7 +414,7 @@
         const r = await fetch('/api/website-summary', {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({url,bizName:url})});
         const d = await r.json();
         competitorSummaries.push({ url, summary: d.summary || null });
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise(resolve => setTimeout(resolve, 4000));
       } catch { competitorSummaries.push({ url, summary: null }); }
     }
 
