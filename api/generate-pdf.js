@@ -197,6 +197,19 @@ function generateHTML(data, bizName, website, date) {
     </div>
   </div>
 
+  ${data.copyExamples ? `<div class="section">
+    <div class="section-tag">Putting it to work</div>
+    <div class="section-note">Example copy based on your positioning — ready to adapt and use</div>
+    <div style="margin-bottom:1rem">
+      <div class="meta-label" style="margin-bottom:6px">Website intro</div>
+      <div style="font-size:13px;line-height:1.7;color:#444441;background:#f5f5f3;border-radius:6px;padding:12px 16px;border-left:3px solid #008080">${data.copyExamples.websiteIntro || ''}</div>
+    </div>
+    <div>
+      <div class="meta-label" style="margin-bottom:6px">Social post</div>
+      <div style="font-size:13px;line-height:1.7;color:#444441;background:#f5f5f3;border-radius:6px;padding:12px 16px;border-left:3px solid #008080">${data.copyExamples.socialPost || ''}</div>
+    </div>
+  </div>` : ''}
+
 </div>
 
 <div class="footer">
