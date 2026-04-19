@@ -10,7 +10,7 @@ export default async function handler(req, res) {
 
   const audienceCtx = audienceDetail ? `Audience insight: ${audienceDetail.slice(0, 200)}` : '';
   const websiteCtx = websiteSummary ? `Own website messaging: ${websiteSummary.slice(0, 300)}` : website ? `Own website: ${website}` : '';
-  const competitorCtx = competitors.slice(0, 800);
+  const competitorCtx = competitors.slice(0, 1000);
 
   let prompt;
 
@@ -21,31 +21,76 @@ Previous result: ${previousResult.slice(0, 1200)}
 
 Adjustment: "${adjustmentInstruction}"
 
-Apply the adjustment. Keep what was good. Return ONLY valid JSON, no markdown:
-{"currentPositioning":null,"personas":[{"name":"","role":"","companySize":"","age":"","frustrations":[],"whatTheyWant":"","buyingTrigger":"","whatWouldWinThem":""}],"competitors":[{"name":"","positioning":""}],"whiteSpace":[{"opportunity":"","whyItMatters":"","personaFit":""}],"positioningStatement":"","valueProposition":""}`;
+Apply the adjustment. Keep what was good. Return ONLY valid JSON, no markdown fences:
+{
+  "currentPositioning": null,
+  "personas": [
+    {"name":"","role":"","companySize":"","age":"","frustrations":["",""],"whatTheyWant":"","buyingTrigger":"","whatWouldWinThem":""},
+    {"name":"","role":"","companySize":"","age":"","frustrations":["",""],"whatTheyWant":"","buyingTrigger":"","whatWouldWinThem":""}
+  ],
+  "competitors": [{"name":"","positioning":""}],
+  "whiteSpace": [{"opportunity":"","whyItMatters":"","personaFit":""}],
+  "positioningStatement": "",
+  "valueProposition": ""
+}`;
   } else {
-    prompt = `Brand strategy expert. Australian SME competitive positioning.
+    prompt = `You are a brand strategy expert specialising in competitive positioning for Australian SMEs.
 
-Business: ${bizName} | Industry: ${industry}
-Does: ${whatYouDo.slice(0, 150)}
-Audience: ${audience}${audienceCtx ? ' | ' + audienceCtx : ''}
-Different: ${differentiation || 'Not specified'}
+Business: ${bizName}
+Industry: ${industry}
+What they do: ${whatYouDo.slice(0, 200)}
+Target audience: ${audience}${audienceCtx ? '\n' + audienceCtx : ''}
+What makes them different: ${differentiation || 'Not specified'}
 ${websiteCtx}
 
-Competitor websites and their messaging:
+COMPETITOR DATA (based on their actual websites):
 ${competitorCtx}
 
-Return ONLY valid JSON, no markdown fences:
-{"currentPositioning":"2-3 sentences on ${bizName} current positioning, or null","personas":[{"name":"First name","role":"Job title","companySize":"e.g. 12-person firm","age":"e.g. 44","frustrations":["frustration 1","frustration 2"],"whatTheyWant":"1 sentence","buyingTrigger":"specific moment","whatWouldWinThem":"specific answer"}],"competitors":[{"name":"domain name","positioning":"1-2 sentences"}],"whiteSpace":[{"opportunity":"specific unclaimed territory","whyItMatters":"1 sentence","personaFit":"which persona and why"}],"positioningStatement":"For [audience], [bizName] is the [category] that [claim] — unlike [competitors] who [contrast].","valueProposition":"2-3 sentences from customer POV."}
+IMPORTANT: For the competitors section, use the actual URLs and website summaries provided above. Name each competitor by their actual business name or domain — do NOT use generic category names like "large agencies" or "freelancers". If a website summary is provided, base the positioning on that real content.
 
-2 personas. 3 white space items. Be specific and grounded.`;
+Return ONLY valid JSON, no markdown fences:
+{
+  "currentPositioning": "2-3 sentences on how ${bizName} currently positions itself based on their website, or null if no website provided",
+  "personas": [
+    {
+      "name": "Realistic first name",
+      "role": "Specific job title",
+      "companySize": "e.g. 22-person professional services firm",
+      "age": "e.g. 46",
+      "frustrations": ["Specific frustration 1", "Specific frustration 2", "Specific frustration 3"],
+      "whatTheyWant": "The specific outcome they are seeking — 1 sentence",
+      "buyingTrigger": "The specific moment or event that makes them start looking",
+      "whatWouldWinThem": "What specifically would make them choose one provider over another"
+    },
+    {
+      "name": "Different realistic first name",
+      "role": "Different job title",
+      "companySize": "e.g. 8-person trade business",
+      "age": "e.g. 38",
+      "frustrations": ["Specific frustration 1", "Specific frustration 2", "Specific frustration 3"],
+      "whatTheyWant": "The specific outcome they are seeking — 1 sentence",
+      "buyingTrigger": "The specific moment or event that makes them start looking",
+      "whatWouldWinThem": "What specifically would make them choose one provider over another"
+    }
+  ],
+  "competitors": [
+    {"name": "Actual business name from URL", "positioning": "1-2 sentences based on their actual website messaging"}
+  ],
+  "whiteSpace": [
+    {"opportunity": "Specific unclaimed positioning territory", "whyItMatters": "1 sentence on why this gap exists", "personaFit": "Which persona this resonates with most and why"}
+  ],
+  "positioningStatement": "For [audience], [bizName] is the [category] that [differentiating claim] — unlike [competitors] who [contrast].",
+  "valueProposition": "2-3 sentences written from the customer point of view in plain English."
+}
+
+Generate exactly 2 personas and exactly 3 white space opportunities. Make personas feel like real specific people — not generic archetypes.`;
   }
 
   try {
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-api-key': process.env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-5-20250929', max_tokens: 1800, messages: [{ role: 'user', content: prompt }] })
+      body: JSON.stringify({ model: 'claude-sonnet-4-5-20250929', max_tokens: 2000, messages: [{ role: 'user', content: prompt }] })
     });
     if (!response.ok) { const err = await response.json(); return res.status(response.status).json({ error: err?.error?.message || 'API error' }); }
     const data = await response.json();
