@@ -40,7 +40,11 @@ Return ONLY valid JSON, no markdown fences:
   "competitors": [{"name":"","positioning":""}],
   "whiteSpace": [{"opportunity":"","whyItMatters":"","personaFit":""},{"opportunity":"","whyItMatters":"","personaFit":""},{"opportunity":"","whyItMatters":"","personaFit":""}],
   "positioningStatement": "",
-  "valueProposition": ""
+  "valueProposition": "",
+  "copyExamples": {
+    "websiteIntro": "updated website intro based on adjusted value proposition",
+    "socialPost": "updated social post based on adjusted positioning"
+  }
 }`;
   } else {
     prompt = `You are a brand strategy expert specialising in competitive positioning for Australian SMEs.
@@ -89,7 +93,11 @@ Return ONLY valid JSON, no markdown fences:
     {"opportunity": "Specific unclaimed positioning territory", "whyItMatters": "1 sentence on why this gap exists", "personaFit": "Which persona this resonates with most and why"}
   ],
   "positioningStatement": "For [audience], [bizName] is the [category] that [differentiating claim] — unlike [competitors] who [contrast].",
-  "valueProposition": "2-3 sentences written from the customer point of view in plain English."
+  "valueProposition": "2-3 sentences written from the customer point of view in plain English.",
+  "copyExamples": {
+    "websiteIntro": "2-3 sentence website hero section intro based on the value proposition — written directly to the target audience, no fluff, plain English, speaks to their real situation",
+    "socialPost": "A LinkedIn or Facebook post of 3-5 sentences — conversational, direct, opens with a hook that speaks to the audience frustration, ends with a soft call to action. No hashtags."
+  }
 }
 
 Generate exactly 2 personas and exactly 3 white space opportunities. Make personas feel like real specific people — not generic archetypes.`;
