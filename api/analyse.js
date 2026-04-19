@@ -17,19 +17,28 @@ export default async function handler(req, res) {
   if (adjustmentInstruction && previousResult) {
     prompt = `Brand strategy expert. A positioning analysis was run for "${bizName}" and the user wants one adjustment.
 
-Previous result: ${previousResult.slice(0, 1200)}
+Previous result:
+${previousResult.slice(0, 1500)}
 
-Adjustment: "${adjustmentInstruction}"
+Adjustment requested: "${adjustmentInstruction}"
 
-Apply the adjustment. Keep what was good. Return ONLY valid JSON, no markdown fences:
+IMPORTANT RULES:
+- Keep ALL existing competitors from the previous result — do not remove any
+- If the adjustment asks to add a competitor, ADD it to the existing list — do not replace
+- If the adjustment asks to change tone, update positioningStatement and valueProposition only
+- If the adjustment asks to change personas, update personas only
+- Only change what the user has specifically asked for — leave everything else exactly as it was
+- Return exactly 2 personas and exactly 3 white space items
+
+Return ONLY valid JSON, no markdown fences:
 {
-  "currentPositioning": null,
+  "currentPositioning": "keep from previous or null",
   "personas": [
-    {"name":"","role":"","companySize":"","age":"","frustrations":["",""],"whatTheyWant":"","buyingTrigger":"","whatWouldWinThem":""},
-    {"name":"","role":"","companySize":"","age":"","frustrations":["",""],"whatTheyWant":"","buyingTrigger":"","whatWouldWinThem":""}
+    {"name":"","role":"","companySize":"","age":"","frustrations":["","",""],"whatTheyWant":"","buyingTrigger":"","whatWouldWinThem":""},
+    {"name":"","role":"","companySize":"","age":"","frustrations":["","",""],"whatTheyWant":"","buyingTrigger":"","whatWouldWinThem":""}
   ],
   "competitors": [{"name":"","positioning":""}],
-  "whiteSpace": [{"opportunity":"","whyItMatters":"","personaFit":""}],
+  "whiteSpace": [{"opportunity":"","whyItMatters":"","personaFit":""},{"opportunity":"","whyItMatters":"","personaFit":""},{"opportunity":"","whyItMatters":"","personaFit":""}],
   "positioningStatement": "",
   "valueProposition": ""
 }`;
