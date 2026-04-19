@@ -242,6 +242,21 @@
         <span class="result-label">Value proposition</span>
         <div class="vp-block"><p id="vpStatement"></p></div>
       </div>
+      <div class="result-card" id="copyExamplesCard" style="display:none">
+        <span class="result-label">Putting it to work</span>
+        <p class="result-sub">Example copy based on your positioning — ready to adapt and use</p>
+        <div style="margin-bottom:1.25rem">
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-hint);margin-bottom:8px">Website intro</div>
+          <div id="websiteIntroText" style="font-size:13px;line-height:1.7;color:var(--text);background:var(--grey-light);border-radius:8px;padding:1rem 1.25rem;border-left:3px solid var(--teal)"></div>
+          <button onclick="copyText('websiteIntroText', this)" style="margin-top:8px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:inherit">Copy</button>
+        </div>
+        <div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-hint);margin-bottom:8px">Social post</div>
+          <div id="socialPostText" style="font-size:13px;line-height:1.7;color:var(--text);background:var(--grey-light);border-radius:8px;padding:1rem 1.25rem;border-left:3px solid var(--teal)"></div>
+          <button onclick="copyText('socialPostText', this)" style="margin-top:8px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:inherit">Copy</button>
+        </div>
+      </div>
+
       <!-- Adjustment panel — shown before first download -->
       <div id="adjustPanel" class="result-card" style="border:2px solid var(--teal)">
         <span class="result-label">Before you download</span>
@@ -275,7 +290,7 @@
   </div>
 
   <footer class="site-footer">
-    <p>Built by <a href="https://tracelement.com.au" target="_blank">TracElement Strategic Marketing</a> · Powered by Claude AI</p>
+    <p>Built by <a href="https://tracelement.com.au" target="_blank">TracElement</a></p>
   </footer>
 </div>
 
@@ -469,6 +484,13 @@
       +`COMPETITIVE POSITIONING MAP\n${data.competitors.map(c=>`${c.name}: ${c.positioning}`).join('\n')}\n\n`
       +`WHITE SPACE OPPORTUNITIES\n${data.whiteSpace.map((ws,i)=>`${i+1}. ${ws}`).join('\n')}\n\n`
       +`RECOMMENDED POSITIONING\n${data.positioningStatement}\n\nVALUE PROPOSITION\n${data.valueProposition}`;
+    // Render copy examples
+    if (data.copyExamples) {
+      const card = document.getElementById('copyExamplesCard');
+      card.style.display = 'block';
+      document.getElementById('websiteIntroText').textContent = data.copyExamples.websiteIntro || '';
+      document.getElementById('socialPostText').textContent = data.copyExamples.socialPost || '';
+    }
     document.getElementById('welcomeBanner').style.display='none';
     document.getElementById('results').classList.add('active');
     window.scrollTo({top:0,behavior:'smooth'});
@@ -491,6 +513,14 @@
       btn.textContent='Open report again';
     } catch(e) { alert('Failed: '+e.message); btn.textContent='Download PDF report'; }
     finally { btn.disabled=false; spin.style.display='none'; }
+  }
+
+  function copyText(elementId, btn) {
+    const text = document.getElementById(elementId).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      btn.textContent = 'Copied!';
+      setTimeout(() => btn.textContent = 'Copy', 2000);
+    });
   }
 
   function copyReport() {
