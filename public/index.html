@@ -654,12 +654,13 @@ async function downloadPDF() {
     }
 
     function sectionTag(label, tagY) {
-      doc.setFillColor(...tealLight);
-      doc.roundedRect(margin, tagY - 4, Math.min(label.length * 1.9 + 8, contentW), 7, 2, 2, 'F');
       doc.setFontSize(7); doc.setFont('helvetica','bold');
+      var tagW = doc.getTextWidth(label.toUpperCase()) + 10;
+      doc.setFillColor(...tealLight);
+      doc.roundedRect(margin, tagY - 4, Math.min(tagW, contentW), 7, 2, 2, 'F');
       doc.setTextColor(...tealDark);
       doc.text(label.toUpperCase(), margin + 4, tagY + 0.5);
-      return tagY + 9;
+      return tagY + 11;
     }
 
     function sectionNote(note, noteY) {
@@ -715,15 +716,17 @@ async function downloadPDF() {
     y = sectionTag('Competitive positioning map', y);
     y = sectionNote('How your named competitors are currently staking their claim', y);
     (data.competitors || []).forEach(c => {
-      const posLines = wrapText(c.positioning, contentW - 36, 8.5);
-      checkPage(posLines.length * 4 + 8);
+      const nameLines = wrapText(c.name, 46, 9);
+      const posLines = wrapText(c.positioning, contentW - 52, 8.5);
+      const rowH = Math.max(nameLines.length * 4.5, posLines.length * 4.5) + 6;
+      checkPage(rowH + 4);
       doc.setFont('helvetica','bold'); doc.setFontSize(9); doc.setTextColor(...grey);
-      doc.text(String(c.name), margin, y);
+      doc.text(nameLines, margin, y);
       doc.setFont('helvetica','normal'); doc.setFontSize(8.5); doc.setTextColor(...textMuted);
-      doc.text(posLines, margin + 36, y);
-      y += Math.max(posLines.length * 4, 5) + 4;
+      doc.text(posLines, margin + 52, y);
+      y += rowH;
       doc.setDrawColor(...borderColor); doc.setLineWidth(0.1);
-      doc.line(margin, y - 2, pageW - margin, y - 2);
+      doc.line(margin, y - 1, pageW - margin, y - 1);
     });
     y += 4; y = divider(y);
 
@@ -773,7 +776,7 @@ async function downloadPDF() {
         doc.roundedRect(margin + half + 2, ly - 2, half - 4, winLines.length * 4 + 3, 2, 2, 'F');
         doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(...tealDark);
         doc.text(winLines, margin + half + 4, ly + 1.5);
-        y += cardH + 6;
+        y += cardH + 10;
       });
       y = divider(y);
     }
@@ -810,7 +813,7 @@ async function downloadPDF() {
         doc.text(fitLines, margin + 14, y + 1.5);
         y += fitLines.length * 4 + 6;
       }
-      y += 4;
+      y += 8;
     });
     y = divider(y);
 
@@ -848,8 +851,8 @@ async function downloadPDF() {
 
       if (data.copyExamples.websiteIntro) {
         checkPage(20);
-        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...textHint);
-        doc.text('WEBSITE INTRO', margin, y); y += 5;
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...tealDark);
+        doc.text('Website intro', margin, y); y += 6;
         const wiLines = wrapText(data.copyExamples.websiteIntro, contentW - 8, 9);
         const wiBoxH = wiLines.length * 5 + 8;
         checkPage(wiBoxH + 4);
@@ -865,8 +868,8 @@ async function downloadPDF() {
       const socialText = data.copyExamples.socialChannelIntro || data.copyExamples.socialPost || '';
       if (socialText) {
         checkPage(20);
-        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...textHint);
-        doc.text('SOCIAL CHANNEL INTRO', margin, y); y += 5;
+        doc.setFont('helvetica','bold'); doc.setFontSize(7.5); doc.setTextColor(...tealDark);
+        doc.text('Social channel intro', margin, y); y += 6;
         const scLines = wrapText(socialText, contentW - 8, 9);
         const scBoxH = scLines.length * 5 + 8;
         checkPage(scBoxH + 4);
