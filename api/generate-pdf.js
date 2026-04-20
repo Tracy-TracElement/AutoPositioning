@@ -68,8 +68,8 @@ function generateHTML(data, bizName, website, date) {
         <div class="copy-block">${data.copyExamples.websiteIntro || ''}</div>
       </div>
       <div>
-        <div class="meta-label" style="margin-bottom:8px">Social post</div>
-        <div class="copy-block">${data.copyExamples.socialPost || ''}</div>
+        <div class="meta-label" style="margin-bottom:8px">Social channel intro</div>
+        <div class="copy-block">${data.copyExamples.socialChannelIntro || data.copyExamples.socialPost || ''}</div>
       </div>
     </div>` : '';
 
