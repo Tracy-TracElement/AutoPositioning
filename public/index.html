@@ -157,7 +157,7 @@
         <div><div class="price-label">One-time payment</div><div class="price-note">Secure checkout via Stripe</div></div>
         <div><span class="price-amount" id="priceDisplay">$47</span> <span style="font-size:13px;color:var(--text-muted)">AUD</span></div>
       </div>
-      <p style="font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:1rem;line-height:1.5">In around 15 minutes, you'll have a positioning strategy you can actually use.</p>
+      <p style="font-size:13px;color:var(--text-muted);text-align:center;margin-bottom:1rem;line-height:1.5">In around 15 minutes, you'll have a positioning and value statement you can actually use.</p>
       <div id="registerError" class="error-msg"></div>
       <button class="btn-primary" id="payBtn" onclick="registerAndPay()">Get my positioning strategy →</button>
       <p style="font-size:11px;color:var(--text-hint);text-align:center;margin-top:0.75rem;">You'll be redirected to Stripe. We never store your card details. Once you've answered a few questions about your business, most reports are ready in under three minutes.</p>
@@ -698,12 +698,7 @@ async function downloadPDF() {
     doc.text('POSITIONING WHITE SPACE REPORT', margin, 31);
     doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...white);
     doc.text(currentBizName, margin, 38);
-    if (currentWebsite) {
-      doc.setFont('helvetica','normal'); doc.setFontSize(8); doc.setTextColor(255,255,255,0.7);
-      doc.text(currentWebsite, margin, 43);
-    }
-
-    y = 52;
+    y = 48;
 
     // ── CURRENT POSITIONING ──
     if (data.currentPositioning && data.currentPositioning !== 'null') {
@@ -845,6 +840,47 @@ async function downloadPDF() {
     doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...grey);
     doc.text(vpLines, margin + 4, y + 6);
     y += vpLines.length * 5 + 12;
+
+    // ── PUTTING IT TO WORK ──
+    if (data.copyExamples) {
+      y = divider(y);
+      checkPage(30);
+      y = sectionTag('Putting it to work', y);
+      y = sectionNote('Example copy based on your positioning — ready to adapt and use', y);
+
+      if (data.copyExamples.websiteIntro) {
+        checkPage(20);
+        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...textHint);
+        doc.text('WEBSITE INTRO', margin, y); y += 5;
+        const wiLines = wrapText(data.copyExamples.websiteIntro, contentW - 8, 9);
+        const wiBoxH = wiLines.length * 5 + 8;
+        checkPage(wiBoxH + 4);
+        doc.setFillColor(...greyLight);
+        doc.roundedRect(margin, y, contentW, wiBoxH, 2, 2, 'F');
+        doc.setFillColor(...teal);
+        doc.rect(margin, y, 2, wiBoxH, 'F');
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...grey);
+        doc.text(wiLines, margin + 6, y + 6);
+        y += wiBoxH + 8;
+      }
+
+      const socialText = data.copyExamples.socialChannelIntro || data.copyExamples.socialPost || '';
+      if (socialText) {
+        checkPage(20);
+        doc.setFont('helvetica','bold'); doc.setFontSize(7); doc.setTextColor(...textHint);
+        doc.text('SOCIAL CHANNEL INTRO', margin, y); y += 5;
+        const scLines = wrapText(socialText, contentW - 8, 9);
+        const scBoxH = scLines.length * 5 + 8;
+        checkPage(scBoxH + 4);
+        doc.setFillColor(...greyLight);
+        doc.roundedRect(margin, y, contentW, scBoxH, 2, 2, 'F');
+        doc.setFillColor(...teal);
+        doc.rect(margin, y, 2, scBoxH, 'F');
+        doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...grey);
+        doc.text(scLines, margin + 6, y + 6);
+        y += scBoxH + 8;
+      }
+    }
 
     // ── FOOTER on each page ──
     const totalPages = doc.getNumberOfPages();
