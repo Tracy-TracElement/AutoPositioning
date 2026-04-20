@@ -496,24 +496,7 @@
     window.scrollTo({top:0,behavior:'smooth'});
   }
 
-  async function downloadPDF() {
-    if (!currentResult||!sessionId) return;
-    const btn=document.getElementById('pdfBtn'), spin=document.getElementById('pdfSpin');
-    btn.disabled=true; btn.textContent='Generating…'; spin.style.display='block';
-    try {
-      const pdfBody = sessionId==='bypass_test' ? {sessionId,reportData:currentResult,bizName:currentBizName,website:currentWebsite} : {sessionId};
-      const r=await fetch('/api/generate-pdf',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pdfBody)});
-      if (!r.ok) { const e=await r.json(); throw new Error(e.error||'Generation failed'); }
-      const html=await r.text();
-      const blob=new Blob([html],{type:'text/html'});
-      const url=URL.createObjectURL(blob);
-      const w=window.open(url,'_blank');
-      if (!w) { const a=document.createElement('a'); a.href=url; a.download=`autopositioning-${currentBizName.toLowerCase().replace(/\s+/g,'-')}.html`; a.click(); }
-      setTimeout(()=>URL.revokeObjectURL(url),5000);
-      btn.textContent='Open report again';
-    } catch(e) { alert('Failed: '+e.message); btn.textContent='Download PDF report'; }
-    finally { btn.disabled=false; spin.style.display='none'; }
-  }
+
 
   function copyText(elementId, btn) {
     const text = document.getElementById(elementId).textContent;
