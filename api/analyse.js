@@ -61,19 +61,21 @@ ${competitorCtx}
 
 CRITICAL: For the competitors section, ONLY include the competitors whose URLs were explicitly provided above. Do NOT add, invent, or suggest any additional competitors from your own knowledge — even if you know of other relevant brands in this category. If a website summary is provided for a URL, use that content. If no summary is available, use your knowledge of that specific URL/brand only. The number of competitors in your response must exactly match the number of URLs provided.
 
+CRITICAL WRITING PRINCIPLE: Every section must be written from the AUDIENCE's perspective — focused on what they experience, feel, need and gain. Never describe what the business does for itself. Always frame output around the customer's world.
+
 Return ONLY valid JSON, no markdown fences:
 {
-  "currentPositioning": "2-3 sentences on how ${bizName} currently positions itself based on their website, or null if no website provided",
+  "currentPositioning": "2-3 sentences on how ${bizName} currently comes across to its audience based on their website — what promise it makes to customers, what problem it signals it solves for them. Written from the customer's point of view, not the business's.",
   "personas": [
     {
       "name": "Realistic first name",
       "role": "Specific job title",
       "companySize": "e.g. 22-person professional services firm",
       "age": "e.g. 46",
-      "frustrations": ["Specific frustration 1", "Specific frustration 2", "Specific frustration 3"],
-      "whatTheyWant": "The specific outcome they are seeking — 1 sentence",
-      "buyingTrigger": "The specific moment or event that makes them start looking",
-      "whatWouldWinThem": "What specifically would make them choose one provider over another"
+      "frustrations": ["A specific frustration this person feels — written as they would think it, not as a business observation", "Specific frustration 2", "Specific frustration 3"],
+      "whatTheyWant": "The outcome this person is actually seeking — written as the benefit they want to feel or achieve, not what a business provides",
+      "buyingTrigger": "The specific moment or event in their life that makes them start looking for a solution",
+      "whatWouldWinThem": "What this person needs to believe or experience to choose — written as their internal decision criteria, not as a sales pitch"
     },
     {
       "name": "Different realistic first name",
@@ -81,26 +83,26 @@ Return ONLY valid JSON, no markdown fences:
       "companySize": "e.g. 8-person trade business",
       "age": "e.g. 38",
       "frustrations": ["Specific frustration 1", "Specific frustration 2", "Specific frustration 3"],
-      "whatTheyWant": "The specific outcome they are seeking — 1 sentence",
+      "whatTheyWant": "The outcome this person is actually seeking",
       "buyingTrigger": "The specific moment or event that makes them start looking",
-      "whatWouldWinThem": "What specifically would make them choose one provider over another"
+      "whatWouldWinThem": "What this person needs to believe or experience to choose"
     }
   ],
   "competitors": [
-    {"name": "Actual business name from URL", "positioning": "1-2 sentences based on their actual website messaging"}
+    {"name": "Actual business name from URL", "positioning": "1-2 sentences on what promise this competitor makes to customers and what position they occupy in the customer's mind — not a description of what they do internally"}
   ],
   "whiteSpace": [
-    {"opportunity": "Specific unclaimed positioning territory", "whyItMatters": "1 sentence on why this gap exists", "personaFit": "Which persona this resonates with most and why"}
+    {"opportunity": "A specific customer need or desire that no competitor is currently addressing well — written as the gap from the customer's perspective", "whyItMatters": "1 sentence on why customers are underserved here", "personaFit": "Which persona feels this gap most acutely and why it matters to them specifically"}
   ],
-  "positioningStatement": "For [audience], [bizName] is the [category] that [differentiating claim] — unlike [competitors] who [contrast].",
-  "valueProposition": "2-3 sentences written from the customer point of view in plain English.",
+  "positioningStatement": "For [specific audience description], [bizName] is the [category] that [customer benefit or transformation] — unlike [competitors] who [contrast from customer perspective].",
+  "valueProposition": "2-3 sentences written entirely from the customer's point of view. What does the customer get, feel, or achieve? Start with the customer's situation or frustration, not with what the business offers.",
   "copyExamples": {
-    "websiteIntro": "2-3 sentence website hero section intro based on the value proposition. Tone: warm and direct, but professional — this will appear on a public-facing website. No slang, no exclamation marks, no emojis. Speak directly to the target audience's real situation. Only reference products or services that ${bizName} actually offers based on the information provided.",
-    "socialChannelIntro": "2-3 sentences to use as a social media channel bio or intro — suitable for LinkedIn, Facebook, or Instagram. Tone: confident and clear, written in the third person. Describes what the business does, who it is for, and what makes it different. Plain English only. Absolutely no emojis, no hashtags, no special characters, no curly quotes — use straight apostrophes only."
+    "websiteIntro": "2-3 sentence website hero section intro written directly to the target audience. Lead with their situation or frustration, not with what the business does. Tone: warm and direct but professional. No slang, no exclamation marks, no emojis. Only reference products or services that ${bizName} actually offers.",
+    "socialChannelIntro": "2-3 sentences for a social media channel bio. Written in third person but focused on what customers get — not what the business does. Confident and clear. Plain English only. No emojis, no hashtags, no special characters, no curly quotes."
   }
 }
 
-Generate exactly 2 personas and exactly 3 white space opportunities. Make personas feel like real specific people — not generic archetypes.`;
+Generate exactly 2 personas and exactly 3 white space opportunities. Make personas feel like real specific people. Every word of every section must be written with the audience in mind — their feelings, their words, their world.`;
   }
 
   try {
