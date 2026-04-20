@@ -98,16 +98,16 @@ function generateHTML(data, bizName, website, date) {
   .biz-name { font-family: 'Playfair Display', Georgia, serif; font-size: 28px; font-weight: 400; color: #fff; line-height: 1.2; }
 
   .body { padding: 0 48px 48px; }
-  .section { padding: 24px 0; border-bottom: 1px solid #f0ede8; }
+  .section { padding: 28px 0; border-bottom: 1px solid #ece9e3; }
   .section:last-child { border-bottom: none; padding-bottom: 0; }
   .section-tag { display: inline-block; font-size: 9px; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; background: #e1f5ee; color: #085041; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
   .section-note { font-size: 11px; color: #999996; margin-bottom: 12px; line-height: 1.4; }
   .body-text { font-size: 13px; color: #444441; line-height: 1.65; }
 
-  .comp-row { display: grid; grid-template-columns: 160px 1fr; gap: 16px; padding: 9px 0; border-bottom: 1px solid #f5f3ef; align-items: start; }
+  .comp-row { display: table; width: 100%; padding: 12px 0; border-bottom: 1px solid #f5f3ef; }
   .comp-row:last-child { border-bottom: none; }
-  .comp-name { font-size: 12px; font-weight: 500; color: #1a1a19; word-break: break-word; }
-  .comp-pos { font-size: 12px; color: #666663; line-height: 1.55; }
+  .comp-name { display: table-cell; width: 180px; padding-right: 20px; font-size: 12px; font-weight: 500; color: #1a1a19; vertical-align: top; }
+  .comp-pos { display: table-cell; font-size: 12px; color: #666663; line-height: 1.6; vertical-align: top; }
 
   .persona-card { border: 1px solid #e0dfd9; border-radius: 10px; padding: 16px 18px; margin-bottom: 12px; page-break-inside: avoid; }
   .persona-card:last-child { margin-bottom: 0; }
@@ -115,7 +115,8 @@ function generateHTML(data, bizName, website, date) {
   .persona-avatar { width: 36px; height: 36px; border-radius: 50%; background: #e1f5ee; color: #085041; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; flex-shrink: 0; }
   .persona-name { font-size: 14px; font-weight: 500; color: #1a1a19; }
   .persona-role { font-size: 12px; color: #666663; margin-top: 2px; }
-  .persona-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .persona-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; border: none; }
+  .persona-grid > div { border: none; }
   .meta-label { font-size: 9px; font-weight: 500; letter-spacing: 0.07em; text-transform: uppercase; color: #999996; margin-bottom: 5px; }
   .meta-text { font-size: 12px; color: #666663; line-height: 1.5; }
   .wins { background: #e1f5ee; color: #085041; padding: 6px 8px; border-radius: 5px; }
@@ -129,7 +130,7 @@ function generateHTML(data, bizName, website, date) {
   .ws-content { flex: 1; min-width: 0; }
   .ws-opp { font-size: 13px; color: #1a1a19; font-weight: 500; line-height: 1.5; margin-bottom: 5px; word-wrap: break-word; }
   .ws-why { font-size: 12px; color: #666663; line-height: 1.5; margin-bottom: 6px; }
-  .ws-fit { font-size: 11px; color: #085041; background: #e1f5ee; padding: 5px 9px; border-radius: 4px; line-height: 1.5; display: block; }
+  .ws-fit { font-size: 11px; color: #085041; background: #e1f5ee; padding: 5px 9px; border-radius: 4px; line-height: 1.5; display: block; word-wrap: break-word; }
 
   .positioning-block { background: #e1f5ee; border-left: 3px solid #008080; padding: 14px 18px; border-radius: 0 6px 6px 0; }
   .positioning-block p { font-family: 'Playfair Display', Georgia, serif; font-size: 14px; font-style: italic; line-height: 1.7; color: #085041; }
