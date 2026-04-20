@@ -95,8 +95,8 @@ Return ONLY valid JSON, no markdown fences:
   "positioningStatement": "For [audience], [bizName] is the [category] that [differentiating claim] — unlike [competitors] who [contrast].",
   "valueProposition": "2-3 sentences written from the customer point of view in plain English.",
   "copyExamples": {
-    "websiteIntro": "2-3 sentence website hero section intro based on the value proposition — written directly to the target audience, no fluff, plain English, speaks to their real situation",
-    "socialPost": "A LinkedIn or Facebook post of 3-5 sentences — conversational, direct, opens with a hook that speaks to the audience frustration, ends with a soft call to action. No hashtags."
+    "websiteIntro": "2-3 sentence website hero section intro based on the value proposition. Tone: warm and direct, but professional — this will appear on a public-facing website. No slang, no exclamation marks, no emojis. Speak directly to the target audience's real situation. Only reference products or services that ${bizName} actually offers based on the information provided.",
+    "socialPost": "A LinkedIn or Facebook post of 3-5 sentences. Tone: conversational and engaging but professional — not overly casual. Opens with a hook that speaks to a real audience frustration or truth. Ends with a soft call to action or question. No emojis. No hashtags. Only reference specific products or services that ${bizName} actually offers based on the information provided — do not invent product names."
   }
 }
 
