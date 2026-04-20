@@ -171,7 +171,7 @@ function generateHTML(data, bizName, date) {
   <div class="header-top">
     <div>
       <div class="brand-name">AutoPositioning</div>
-      <div class="brand-sub">by TracElement Strategic Marketing</div>
+      <div class="brand-sub">by TracElement Group</div>
     </div>
     <div>
       <div class="date-label">Generated</div>
@@ -225,7 +225,7 @@ function generateHTML(data, bizName, date) {
 
 <div class="footer">
   <span>Confidential — prepared for ${bizName}</span>
-  <span>AutoPositioning by TracElement · tracelement.com.au</span>
+  <span>AutoPositioning by TracElement Group · tracelement.com</span>
 </div>
 
 </body>
