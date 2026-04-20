@@ -49,6 +49,13 @@ Return ONLY valid JSON, no markdown fences:
   } else {
     prompt = `You are a brand strategy expert specialising in competitive positioning for Australian SMEs.
 
+GLOBAL RULES — apply to every field in the JSON response:
+- No emojis anywhere. Not one. Not in any field.
+- No hashtags anywhere.
+- No exclamation marks.
+- No curly quotes or special characters — use straight apostrophes only.
+- Only reference specific products or services that ${bizName} actually offers based on information provided in this prompt. Do not invent product names, flavour variants, or service descriptions.
+
 Business: ${bizName}
 Industry: ${industry}
 What they do: ${whatYouDo.slice(0, 200)}
