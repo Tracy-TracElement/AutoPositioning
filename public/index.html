@@ -697,7 +697,7 @@ async function downloadPDF() {
     doc.text('POSITIONING WHITE SPACE REPORT', margin, 31);
     doc.setFont('helvetica','bold'); doc.setFontSize(14); doc.setTextColor(...white);
     doc.text(clean(currentBizName), margin, 38);
-    y = 48;
+    y = 56;
 
     // ── CURRENT POSITIONING ──
     if (data.currentPositioning && data.currentPositioning !== 'null') {
@@ -736,12 +736,17 @@ async function downloadPDF() {
       y = sectionTag('Audience personas', y);
       y = sectionNote('Who is most likely buying — and what drives their decision', y);
       data.personas.forEach(p => {
-        const frusts = (p.frustrations || []).join(', ');
+        const frustItems = (p.frustrations || []);
         const wantLines = wrapText(p.whatTheyWant || '', (contentW/2) - 6, 8);
-        const frustLines = wrapText(frusts, (contentW/2) - 6, 8);
+        // Each frustration on its own line with dash prefix
+        let frustLines = [];
+        frustItems.forEach(f => {
+          const fl = wrapText('- ' + f, (contentW/2) - 8, 8);
+          frustLines = frustLines.concat(fl);
+        });
         const trigLines = wrapText(p.buyingTrigger || '', (contentW/2) - 6, 8);
         const winLines = wrapText(p.whatWouldWinThem || '', (contentW/2) - 6, 8);
-        const cardH = Math.max(frustLines.length + wantLines.length + trigLines.length + winLines.length, 6) * 4.5 + 22;
+        const cardH = Math.max(frustLines.length, wantLines.length + trigLines.length + winLines.length + 6) * 4.5 + 28;
         checkPage(cardH + 4);
         doc.setFillColor(...greyLight); doc.setDrawColor(...borderColor); doc.setLineWidth(0.2);
         doc.roundedRect(margin, y, contentW, cardH, 3, 3, 'FD');
@@ -818,11 +823,10 @@ async function downloadPDF() {
     y = divider(y);
 
     // ── RECOMMENDED POSITIONING ──
-    checkPage(30);
-    y = sectionTag('Recommended positioning', y);
     const posLines = wrapText(data.positioningStatement || '', contentW - 8, 10);
     const posBoxH = posLines.length * 5.5 + 8;
-    checkPage(posBoxH + 4);
+    checkPage(posBoxH + 24);
+    y = sectionTag('Recommended positioning', y);
     doc.setFillColor(...tealLight);
     doc.roundedRect(margin, y, contentW, posBoxH, 2, 2, 'F');
     doc.setFillColor(...teal);
@@ -832,10 +836,9 @@ async function downloadPDF() {
     y += posBoxH + 6; y = divider(y);
 
     // ── VALUE PROPOSITION ──
-    checkPage(25);
-    y = sectionTag('Value proposition', y);
     const vpLines = wrapText(data.valueProposition || '', contentW - 4, 9);
-    checkPage(vpLines.length * 4.5 + 10);
+    checkPage(vpLines.length * 5 + 24);
+    y = sectionTag('Value proposition', y);
     doc.setFillColor(...greyLight);
     doc.roundedRect(margin, y, contentW, vpLines.length * 5 + 6, 2, 2, 'F');
     doc.setFont('helvetica','normal'); doc.setFontSize(9); doc.setTextColor(...grey);
