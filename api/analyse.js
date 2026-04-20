@@ -59,7 +59,7 @@ ${websiteCtx}
 COMPETITOR DATA (based on their actual websites):
 ${competitorCtx}
 
-IMPORTANT: For the competitors section, use the actual URLs and website summaries provided above. Name each competitor by their actual business name or domain — do NOT use generic category names like "large agencies" or "freelancers". If a website summary is provided, base the positioning on that real content.
+CRITICAL: For the competitors section, ONLY include the competitors whose URLs were explicitly provided above. Do NOT add, invent, or suggest any additional competitors from your own knowledge — even if you know of other relevant brands in this category. If a website summary is provided for a URL, use that content. If no summary is available, use your knowledge of that specific URL/brand only. The number of competitors in your response must exactly match the number of URLs provided.
 
 Return ONLY valid JSON, no markdown fences:
 {
@@ -96,7 +96,7 @@ Return ONLY valid JSON, no markdown fences:
   "valueProposition": "2-3 sentences written from the customer point of view in plain English.",
   "copyExamples": {
     "websiteIntro": "2-3 sentence website hero section intro based on the value proposition. Tone: warm and direct, but professional — this will appear on a public-facing website. No slang, no exclamation marks, no emojis. Speak directly to the target audience's real situation. Only reference products or services that ${bizName} actually offers based on the information provided.",
-    "socialChannelIntro": "2-3 sentences to use as a social media channel bio or intro — suitable for LinkedIn, Facebook, or Instagram. Tone: confident and clear, written in the third person. Describes what the business does, who it is for, and what makes it different. No emojis. No hashtags. Plain English. Only reference products or services that ${bizName} actually offers based on the information provided."
+    "socialChannelIntro": "2-3 sentences to use as a social media channel bio or intro — suitable for LinkedIn, Facebook, or Instagram. Tone: confident and clear, written in the third person. Describes what the business does, who it is for, and what makes it different. Plain English only. Absolutely no emojis, no hashtags, no special characters, no curly quotes — use straight apostrophes only."
   }
 }
 
