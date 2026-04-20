@@ -251,7 +251,7 @@
           <button onclick="copyText('websiteIntroText', this)" style="margin-top:8px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:inherit">Copy</button>
         </div>
         <div>
-          <div style="font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-hint);margin-bottom:8px">Social post</div>
+          <div style="font-size:10px;font-weight:500;letter-spacing:0.07em;text-transform:uppercase;color:var(--text-hint);margin-bottom:8px">Social channel intro</div>
           <div id="socialPostText" style="font-size:13px;line-height:1.7;color:var(--text);background:var(--grey-light);border-radius:8px;padding:1rem 1.25rem;border-left:3px solid var(--teal)"></div>
           <button onclick="copyText('socialPostText', this)" style="margin-top:8px;background:none;border:1px solid var(--border);border-radius:6px;padding:5px 12px;font-size:11px;color:var(--text-muted);cursor:pointer;font-family:inherit">Copy</button>
         </div>
@@ -489,7 +489,7 @@
       const card = document.getElementById('copyExamplesCard');
       card.style.display = 'block';
       document.getElementById('websiteIntroText').textContent = data.copyExamples.websiteIntro || '';
-      document.getElementById('socialPostText').textContent = data.copyExamples.socialPost || '';
+      document.getElementById('socialPostText').textContent = data.copyExamples.socialChannelIntro || data.copyExamples.socialPost || '';
     }
     document.getElementById('welcomeBanner').style.display='none';
     document.getElementById('results').classList.add('active');
