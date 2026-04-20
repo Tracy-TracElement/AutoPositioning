@@ -96,7 +96,7 @@ Return ONLY valid JSON, no markdown fences:
   "valueProposition": "2-3 sentences written from the customer point of view in plain English.",
   "copyExamples": {
     "websiteIntro": "2-3 sentence website hero section intro based on the value proposition. Tone: warm and direct, but professional — this will appear on a public-facing website. No slang, no exclamation marks, no emojis. Speak directly to the target audience's real situation. Only reference products or services that ${bizName} actually offers based on the information provided.",
-    "socialPost": "A LinkedIn or Facebook post of 3-5 sentences. Tone: conversational and engaging but professional — not overly casual. Opens with a hook that speaks to a real audience frustration or truth. Ends with a soft call to action or question. No emojis. No hashtags. Only reference specific products or services that ${bizName} actually offers based on the information provided — do not invent product names."
+    "socialChannelIntro": "2-3 sentences to use as a social media channel bio or intro — suitable for LinkedIn, Facebook, or Instagram. Tone: confident and clear, written in the third person. Describes what the business does, who it is for, and what makes it different. No emojis. No hashtags. Plain English. Only reference products or services that ${bizName} actually offers based on the information provided."
   }
 }
 
