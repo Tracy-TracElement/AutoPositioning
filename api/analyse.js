@@ -46,4 +46,8 @@ Return ONLY valid JSON, no markdown fences:
   "valueProposition": "",
   "copyExamples": {
     "websiteIntro": "updated website intro based on adjusted value proposition",
-    "socialChannelIntro": "updated so
+    "socialChannelIntro": "updated social post based on adjusted positioning"
+  }
+}`;
+  } else {
+    prompt = `You are a senior brand strategist with 20 years of experience positioning Australian
